@@ -274,7 +274,8 @@ def view_video(video_id):
     if cookie_exists("data") and check_if_valid_session(session_id):
         video = Video.query.filter(Video.id == video_id).first()
         return render_template('video_page.html',
-                               video=video
+                               video=video,
+                               database_get_videos=lambda x, y: database_get_videos(x, y)
                                )
     else:
         return make_response(redirect(url_for('index')))

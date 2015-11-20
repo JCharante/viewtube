@@ -8,4 +8,12 @@
         <hr>
         <p>Uploaded by {{ video.uploader }}</p>
     </div>
+    <div class="col-xs-4">
+        <hr>
+        {% for video in database_get_videos("query", video.title).items() %}
+        {% set video = video[1] %}
+            <a href="{{ url_for('view_video', video_id=video.get('id')) }}"><p>{{ video.get('title') }} | Relevancy to video title: {{ video.get('weight') }}</p></a>
+            <hr>
+        {% endfor %}
+    </div>
 {% endblock %}
