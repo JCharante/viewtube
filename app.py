@@ -203,7 +203,7 @@ def database_get_videos(type_of_request, data):
         # Sorts videos by weight/search relevancy
         for i in range(1, len(response)):
             if response[i - 1]['weight'] < response[i]['weight']:
-                response[i - 1]['weight'], response[i]['weight'] = response[i]['weight'], response[i - 1]['weight']
+                response[i - 1], response[i] = response[i], response[i - 1]
         return response
 
 
