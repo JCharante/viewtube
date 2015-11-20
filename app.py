@@ -44,6 +44,19 @@ class Video(db.Model):
         return '<Video %r>' % self.id
 
 
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True, unique=True)
+    video_id = db.Column(db.Integer)
+    tag = db.Column(db.String())
+
+    def __init__(self, video_id, tag):
+        self.video_id = video_id
+        self.tag = tag
+
+    def __repr__(self):
+        return '<Tag %r>' % self.id
+
+
 # Returns True if specified cookie is in the User's Browser
 def cookie_exists(cookie_name):
     if cookie_name in request.cookies:
@@ -143,6 +156,12 @@ def database_add_video(video, title, uploader):
     return "Successfully added video!"
 
 
+def database_add_tag(video_id, tag):
+    db.session.add(Tag(video_id, tag))
+    db.session.commit()
+    return 'Successfully added tag!'
+
+
 def database_get_videos(type_of_request, data):
     number_of_videos = 0
     response = {}
@@ -163,6 +182,28 @@ def database_get_videos(type_of_request, data):
                                           'uploader': video.uploader,
                                           }
             number_of_videos += 1
+        return response
+    elif type_of_request == "query":
+        query = data.lower().split(" ")
+
+        for video in Video.query.order_by(Video.id.desc()).filter(Tag.video_id == Video.id).filter(Tag.tag.in_(query)).all():
+            response[number_of_videos] = {'id': video.id,
+                                          'title': video.title,
+                                          'video': video.video,
+                                          'uploader': video.uploader,
+                                          'weight': 0
+                                          }
+            tags = []
+            for tag in Tag.query.filter(Tag.video_id == video.id).all():
+                tags.append(tag.tag)
+            # Updates the weight by how many matches there are between the query and tags
+            for tag in query:
+                response[number_of_videos]['weight'] += tags.count(tag)
+            number_of_videos += 1
+        # Sorts videos by weight/search relevancy
+        for i in range(1, len(response)):
+            if response[i - 1]['weight'] < response[i]['weight']:
+                response[i - 1]['weight'], response[i]['weight'] = response[i]['weight'], response[i - 1]['weight']
         return response
 
 
@@ -242,7 +283,25 @@ def view_video(video_id):
 @app.route('/search', methods=['POST'])
 def search():
     form_response = dict(request.form.items())
-    return form_response.get('query')
+    data = get_saved_data("data")
+    session_id = data.get('session_id')
+    if cookie_exists("data") and check_if_valid_session(session_id):
+        return make_response(redirect(url_for('search_results', query=form_response.get('query'))))
+    else:
+        return make_response(redirect(url_for('index')))
+
+
+@app.route('/search_results/<query>')
+def search_results(query):
+    data = get_saved_data("data")
+    session_id = data.get('session_id')
+    if cookie_exists("data") and check_if_valid_session(session_id):
+        return render_template('search_result.html',
+                               query=query,
+                               database_get_videos=lambda x, y: database_get_videos(x, y)
+                               )
+    else:
+        return make_response(redirect(url_for('index')))
 
 
 @app.route('/upload')
@@ -265,6 +324,10 @@ def upload_post():
         title = form_response.get('title')
         video = form_response.get('video')
         database_add_video(video, title, uploader)
+        uploaded_video = Video.query.order_by(Video.id.desc()).filter(Video.title == title).filter(Video.video == video).filter(Video.uploader == uploader).first()
+        tags = form_response.get('tags').lower().split(" ")
+        for tag in tags:
+            database_add_tag(uploaded_video.id, tag)
         return make_response(redirect(url_for('home')))
     else:
         return make_response(redirect(url_for('index')))
