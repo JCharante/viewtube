@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="col-xs-8">
+        {{ video.title }}
+        <hr>
+        {{ video.video | safe }}
+        <hr>
+        <p>Uploaded by {{ video.uploader }}</p>
+    </div>
+{% endblock %}

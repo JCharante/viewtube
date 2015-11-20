@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <!--suppress ALL -->
+<div class="col-xs-12">
+        <div class="col-xs-6">
+            <div class="col-xs-12">
+                <p>Please log in.</p>
+            </div>
+            <form action="{{ url_for('login_post', request_type='login') }}" method="POST">
+                <label for="username">Please enter your username:</label>
+                <input type="text" name="username" /><br />
+                <label for="password">Please enter your password:</label>
+                <input type="text" name="password" /><br />
+                <button class="btn">Log In</button>
+            </form>
+        </div>
+        <div class="col-xs-6">
+            <div class="col-xs-12">
+                <p>Don't have an account? Register here</p>
+            </div>
+            <form action="{{ url_for('login_post', request_type='register') }}" method="POST">
+                <label for="username">Please enter your new username:</label>
+                <input type="text" name="username" /><br />
+                <label for="password">Please enter your new password:</label>
+                <input type="text" name="password" /><br />
+                <button class="btn">Register</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
