@@ -1,7 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, request, make_response
+from flask import Flask, render_template, redirect, url_for, request, make_response, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
-import bcrypt, uuid, json
+import bcrypt, uuid, json, random
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -324,6 +324,8 @@ def upload_post():
         uploader = db_user_info("session_id", session_id).username
         title = form_response.get('title')
         video = form_response.get('video')
+        video = video[:len(video) - 4]
+        video += "preview"
         database_add_video(video, title, uploader)
         uploaded_video = Video.query.order_by(Video.id.desc()).filter(Video.title == title).filter(Video.video == video).filter(Video.uploader == uploader).first()
         tags = form_response.get('tags').lower().split(" ")
@@ -332,6 +334,32 @@ def upload_post():
         return make_response(redirect(url_for('home')))
     else:
         return make_response(redirect(url_for('index')))
+
+
+@app.route('/live_stats')
+def live_stats():
+    return render_template('ajax/index.html')
+
+
+app.randomyear = 0
+
+
+def randomyear():
+    app.randomyear += 1
+    return app.randomyear
+
+app.yeardata = []
+
+
+@app.route('/random_number')
+def random_number():
+    app.yeardata.append([randomyear(), random.random() * 1000])
+    response = {
+        "label": "Europe (EU27)",
+        "data": app.yeardata
+    }
+    print(app.randomyear)
+    return jsonify(**response)
 
 
 app.run(debug=True, host='0.0.0.0', port=8000)

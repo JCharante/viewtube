@@ -4,7 +4,7 @@
     <div class="col-xs-8">
         {{ video.title }}
         <hr>
-        {{ video.video | safe }}
+        <iframe src="{{ video.video }}" width="800" height="450"></iframe>
         <hr>
         <p>Uploaded by {{ video.uploader }}</p>
     </div>
