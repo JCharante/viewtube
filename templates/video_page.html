@@ -1,19 +1,24 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <div class="col-xs-8">
-        {{ video.title }}
-        <hr>
-        <iframe src="{{ video.video }}" width="800" height="450"></iframe>
-        <hr>
-        <p>Uploaded by {{ video.uploader }}</p>
-    </div>
-    <div class="col-xs-4">
-        <hr>
-        {% for video in database_get_videos("query", video.title).items() %}
-        {% set video = video[1] %}
-            <a href="{{ url_for('view_video', video_id=video.get('id')) }}"><p>{{ video.get('title') }} | Relevancy to video title: {{ video.get('weight') }}</p></a>
+    <div class="row">
+        <div class="col s12 m12 l8">
+            <h5>{{ video.title }}</h5>
             <hr>
-        {% endfor %}
+            <div class="video-container">
+                <iframe src="{{ video.video }}" width="400" height="200"></iframe>
+            </div>
+            <hr>
+            <p>Uploaded by {{ video.uploader }}</p>
+            <hr>
+        </div>
+        <div class="col s12 m12 l4">
+            <h5>Relevant Videos:</h5>
+            {% for video in database_get_videos("query", video.title).items() %}
+            {% set video = video[1] %}
+                <a href="{{ url_for('view_video', video_id=video.get('id')) }}"><p>{{ video.get('title') }} | Relevancy to video title: {{ video.get('weight') }}</p></a>
+                <hr>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
