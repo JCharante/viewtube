@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block head %}
+    <script src="../static/js/jquery.flot.js"></script>
+    <link href="../static/css/examples.css" rel="stylesheet" type="text/css">
+
+    <script type="text/javascript" language="javascript" src="/static/js/jquery.flot.js"></script>
+    <script type="text/javascript">
+    $(function() {
+
+		var options = {
+			bars: {
+				show: true
+			},
+		};
+
+		var data = [];
+
+		$.plot("#placeholder", data, options);
+
+		// Fetch one series, adding to what we already have
+
+
+		// Initiate a recurring data update
+
+		$("button.dataUpdate").click(function () {
+
+			data = [];
+
+			$.plot("#placeholder", data, options);
+
+			function fetchData() {
+
+				function onDataReceived(series) {
+
+					// Load all the data in one pass; if we only got partial
+					// data we could merge it with what we already have.
+
+					data = [ series ];
+					$.plot("#placeholder", data, options);
+				}
+
+				$.ajax({
+					url: "sort_example",
+					type: "GET",
+					dataType: "json",
+					success: onDataReceived
+				});
+
+                setTimeout(fetchData, 60);
+			}
+
+			setTimeout(fetchData, 1000);
+		});
+	});
+
+	</script>
+{% endblock %}
+
+{% block content %}
+<div id="content">
+    <div class="demo-container">
+        <div id="placeholder" class="demo-placeholder"></div>
+    </div>
+    <p>
+        <button class="waves-effect waves-light btn-large dataUpdate">Poll for Data</button>
+        <a href="{{ url_for('generate_new_dataset') }}" class="waves-effect waves-light btn-large">Generate new dataset</a>
+    </p>
+</div>
+{% endblock %}

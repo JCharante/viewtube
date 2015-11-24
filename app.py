@@ -196,7 +196,8 @@ def database_get_videos(type_of_request, data):
     elif type_of_request == "query":
         query = data.lower().split(" ")
 
-        for video in Video.query.order_by(Video.id.desc()).filter(Tag.video_id == Video.id).filter(Tag.tag.in_(query)).all():
+        for video in Video.query.order_by(Video.id.desc()).filter(Tag.video_id == Video.id).filter(
+                Tag.tag.in_(query)).all():
             response[number_of_videos] = {'id': video.id,
                                           'title': video.title,
                                           'video': video.video,
@@ -288,7 +289,7 @@ def view_video(video_id):
     logged_in = False
     if cookie_exists("data") and check_if_valid_session(session_id):
         logged_in = True
-    #video = Video.query.filter(Video.id == video_id).first()
+    # video = Video.query.filter(Video.id == video_id).first()
     video = {}
     for vid in database_get_videos("video_id", video_id).items():
         video = vid[1]
@@ -345,18 +346,14 @@ def upload_post():
         video = video[:len(video) - 4]
         video += "preview"
         database_add_video(video, title, uploader)
-        uploaded_video = Video.query.order_by(Video.id.desc()).filter(Video.title == title).filter(Video.video == video).filter(Video.uploader == uploader).first()
+        uploaded_video = Video.query.order_by(Video.id.desc()).filter(Video.title == title).filter(
+            Video.video == video).filter(Video.uploader == uploader).first()
         tags = form_response.get('tags').lower().split(" ")
         for tag in tags:
             database_add_tag(uploaded_video.id, tag)
         return make_response(redirect(url_for('home')))
     else:
         return make_response(redirect(url_for('index')))
-
-
-@app.route('/live_stats')
-def live_stats():
-    return render_template('ajax/index.html')
 
 
 app.randomyear = 0
@@ -366,7 +363,170 @@ def randomyear():
     app.randomyear += 1
     return app.randomyear
 
+
 app.yeardata = []
+
+app.list_of_stuff = []
+
+
+def sort_once():
+    def sort_in_eight():
+        length = int(len(app.list_of_stuff) / 8)
+        first_quarter = app.list_of_stuff[:length * 1]
+        second_quarter = app.list_of_stuff[length * 1:length * 2]
+        third_quarter = app.list_of_stuff[length * 2:length * 3]
+        fourth_quarter = app.list_of_stuff[length * 3:length * 4]
+        fifth_quarter = app.list_of_stuff[length * 4:length * 5]
+        sixth_quarter = app.list_of_stuff[length * 5:length * 6]
+        seventh_quarter = app.list_of_stuff[length * 6:length * 7]
+        eighth_quarter = app.list_of_stuff[length * 7:length * 8]
+        in_order = True
+        for i in range(1, len(first_quarter)):
+            if first_quarter[i - 1][1] < first_quarter[i][1]:
+                in_order = False
+                first_quarter[i - 1][1], first_quarter[i][1] = first_quarter[i][1], first_quarter[i - 1][1]
+        for i in range(1, len(second_quarter)):
+            if second_quarter[i - 1][1] < second_quarter[i][1]:
+                in_order = False
+                second_quarter[i - 1][1], second_quarter[i][1] = second_quarter[i][1], second_quarter[i - 1][1]
+        for i in range(1, len(third_quarter)):
+            if third_quarter[i - 1][1] < third_quarter[i][1]:
+                in_order = False
+                third_quarter[i - 1][1], third_quarter[i][1] = third_quarter[i][1], third_quarter[i - 1][1]
+        for i in range(1, len(fourth_quarter)):
+            if fourth_quarter[i - 1][1] < fourth_quarter[i][1]:
+                in_order = False
+                fourth_quarter[i - 1][1], fourth_quarter[i][1] = fourth_quarter[i][1], fourth_quarter[i - 1][1]
+        for i in range(1, len(fifth_quarter)):
+            if fifth_quarter[i - 1][1] < fifth_quarter[i][1]:
+                in_order = False
+                fifth_quarter[i - 1][1], fifth_quarter[i][1] = fifth_quarter[i][1], fifth_quarter[i - 1][1]
+        for i in range(1, len(sixth_quarter)):
+            if sixth_quarter[i - 1][1] < sixth_quarter[i][1]:
+                in_order = False
+                sixth_quarter[i - 1][1], sixth_quarter[i][1] = sixth_quarter[i][1], sixth_quarter[i - 1][1]
+        for i in range(1, len(seventh_quarter)):
+            if seventh_quarter[i - 1][1] < seventh_quarter[i][1]:
+                in_order = False
+                seventh_quarter[i - 1][1], seventh_quarter[i][1] = seventh_quarter[i][1], seventh_quarter[i - 1][1]
+        for i in range(1, len(eighth_quarter)):
+            if eighth_quarter[i - 1][1] < eighth_quarter[i][1]:
+                in_order = False
+                eighth_quarter[i - 1][1], eighth_quarter[i][1] = eighth_quarter[i][1], eighth_quarter[i - 1][1]
+        app.list_of_stuff = []
+        for i in first_quarter:
+            app.list_of_stuff.append(i)
+        for i in second_quarter:
+            app.list_of_stuff.append(i)
+        for i in third_quarter:
+            app.list_of_stuff.append(i)
+        for i in fourth_quarter:
+            app.list_of_stuff.append(i)
+        for i in fifth_quarter:
+            app.list_of_stuff.append(i)
+        for i in sixth_quarter:
+            app.list_of_stuff.append(i)
+        for i in seventh_quarter:
+            app.list_of_stuff.append(i)
+        for i in eighth_quarter:
+            app.list_of_stuff.append(i)
+        return in_order
+
+    def sort_in_four():
+        length = int(len(app.list_of_stuff) / 4)
+        first_quarter = app.list_of_stuff[:length * 1]
+        second_quarter = app.list_of_stuff[length * 1:length * 2]
+        third_quarter = app.list_of_stuff[length * 2:length * 3]
+        fourth_quarter = app.list_of_stuff[length * 3:length * 4]
+        in_order = True
+        for i in range(1, len(first_quarter)):
+            if first_quarter[i - 1][1] < first_quarter[i][1]:
+                in_order = False
+                first_quarter[i - 1][1], first_quarter[i][1] = first_quarter[i][1], first_quarter[i - 1][1]
+        for i in range(1, len(second_quarter)):
+            if second_quarter[i - 1][1] < second_quarter[i][1]:
+                in_order = False
+                second_quarter[i - 1][1], second_quarter[i][1] = second_quarter[i][1], second_quarter[i - 1][1]
+        for i in range(1, len(third_quarter)):
+            if third_quarter[i - 1][1] < third_quarter[i][1]:
+                in_order = False
+                third_quarter[i - 1][1], third_quarter[i][1] = third_quarter[i][1], third_quarter[i - 1][1]
+        for i in range(1, len(fourth_quarter)):
+            if fourth_quarter[i - 1][1] < fourth_quarter[i][1]:
+                in_order = False
+                fourth_quarter[i - 1][1], fourth_quarter[i][1] = fourth_quarter[i][1], fourth_quarter[i - 1][1]
+        app.list_of_stuff = []
+        for i in first_quarter:
+            app.list_of_stuff.append(i)
+        for i in second_quarter:
+            app.list_of_stuff.append(i)
+        for i in third_quarter:
+            app.list_of_stuff.append(i)
+        for i in fourth_quarter:
+            app.list_of_stuff.append(i)
+        return in_order
+
+    def sort_in_two():
+        length = int(len(app.list_of_stuff) / 2)
+        first_half = app.list_of_stuff[:length * 1]
+        second_half = app.list_of_stuff[length * 1:length * 2]
+        in_order = True
+        for i in range(1, len(first_half)):
+            if first_half[i - 1][1] < first_half[i][1]:
+                in_order = False
+                first_half[i - 1][1], first_half[i][1] = first_half[i][1], first_half[i - 1][1]
+        for i in range(1, len(second_half)):
+            if second_half[i - 1][1] < second_half[i][1]:
+                in_order = False
+                second_half[i - 1][1], second_half[i][1] = second_half[i][1], second_half[i - 1][1]
+        app.list_of_stuff = []
+        for i in first_half:
+            app.list_of_stuff.append(i)
+        for i in second_half:
+            app.list_of_stuff.append(i)
+        return in_order
+
+    def complete_sort():
+        status = True
+        for i in range(1, len(app.list_of_stuff)):
+            if app.list_of_stuff[i - 1][1] < app.list_of_stuff[i][1]:
+                status = False
+                app.list_of_stuff[i - 1][1], app.list_of_stuff[i][1] = app.list_of_stuff[i][1], app.list_of_stuff[i - 1][1]
+        return status
+
+    if sort_in_eight() is True:
+        if sort_in_four() is True:
+            if complete_sort() is True:
+                generate_new_dataset()
+    return
+
+
+@app.route('/generate_new_dataset')
+def generate_new_dataset():
+    app.list_of_stuff = []
+    for i in range(0, 300):
+        app.list_of_stuff.append([i, random.random() * 1000])
+    return make_response(redirect(url_for('bar_graph')))
+
+
+@app.route('/live_stats')
+def live_stats():
+    return render_template('ajax/index.html')
+
+
+@app.route('/ajax')
+def bar_graph():
+    return render_template('ajax.html')
+
+
+@app.route('/sort_example')
+def sort_example():
+    sort_once()
+    response = {
+        "label": "Sorting Example",
+        "data": app.list_of_stuff
+    }
+    return jsonify(**response)
 
 
 @app.route('/random_number')
