@@ -3,13 +3,16 @@
 {% block content %}
     <div class="row">
         <div class="col s12 m12 l8">
-            <h5>{{ video.title }}</h5>
+            <h5>{{ video.get('title') }}</h5>
             <hr>
             <div class="video-container">
                 <iframe src="{{ video.video }}" width="400" height="200"></iframe>
             </div>
             <hr>
-            <p>Uploaded by {{ video.uploader }}</p>
+            <p>Uploaded by {{ video.get('uploader') }}</p>
+            <p>{{ video.get('description') }}</p>
+            <p>Likes: {{ video.get('likes') }} | {{ video.get('dislikes') }} :sekilsiD</p>
+            <p>Views: {{ video.get('views') }}</p>
             <hr>
         </div>
         <div class="col s12 m12 l4">

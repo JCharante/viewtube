@@ -162,15 +162,21 @@ def database_add_tag(video_id, tag):
     return 'Successfully added tag!'
 
 
+# TODO: Add likes, dislikes, views, and descriptions to video tables
 def database_get_videos(type_of_request, data):
     number_of_videos = 0
     response = {}
+    fake_description = "Donec at sollicitudin nisi, vitae tristique urna. Suspendisse nisi odio, maximus ut vehicula elementum, tempus ac magna. In at massa lectus. Nunc id tellus velit. Morbi nec interdum tortor, id consequat mi. Phasellus ut lectus ac odio fringilla scelerisque id at diam. Ut egestas accumsan nunc, eget pellentesque velit placerat eleifend. Nunc felis eros, vestibulum a ligula vel, euismod pharetra nibh. Vestibulum faucibus porta nulla, a ornare mi tincidunt semper. Nunc facilisis dui felis, eu iaculis ligula interdum eu."
     if type_of_request == "all":
         for video in Video.query.order_by(Video.id.desc()).all():
             response[number_of_videos] = {'id': video.id,
                                           'title': video.title,
                                           'video': video.video,
                                           'uploader': video.uploader,
+                                          'description': fake_description,
+                                          'likes': 0,
+                                          'dislikes': 0,
+                                          'views': 0
                                           }
             number_of_videos += 1
         return response
@@ -180,6 +186,10 @@ def database_get_videos(type_of_request, data):
                                           'title': video.title,
                                           'video': video.video,
                                           'uploader': video.uploader,
+                                          'description': fake_description,
+                                          'likes': 0,
+                                          'dislikes': 0,
+                                          'views': 0
                                           }
             number_of_videos += 1
         return response
@@ -191,6 +201,10 @@ def database_get_videos(type_of_request, data):
                                           'title': video.title,
                                           'video': video.video,
                                           'uploader': video.uploader,
+                                          'description': fake_description,
+                                          'likes': 0,
+                                          'dislikes': 0,
+                                          'views': 0,
                                           'weight': 0
                                           }
             tags = []
@@ -271,14 +285,18 @@ def home():
 def view_video(video_id):
     data = get_saved_data("data")
     session_id = data.get('session_id')
+    logged_in = False
     if cookie_exists("data") and check_if_valid_session(session_id):
-        video = Video.query.filter(Video.id == video_id).first()
-        return render_template('video_page.html',
-                               video=video,
-                               database_get_videos=lambda x, y: database_get_videos(x, y)
-                               )
-    else:
-        return make_response(redirect(url_for('index')))
+        logged_in = True
+    #video = Video.query.filter(Video.id == video_id).first()
+    video = {}
+    for vid in database_get_videos("video_id", video_id).items():
+        video = vid[1]
+    return render_template('video_page.html',
+                           video=video,
+                           database_get_videos=lambda x, y: database_get_videos(x, y),
+                           logged_in=logged_in
+                           )
 
 
 @app.route('/search', methods=['POST'])

@@ -1,8 +1,29 @@
 {% extends "layout.html" %}
 
 {% block content %}
+    <div class="row">
     {% for video in database_get_videos("query", query).items() %}
     {% set video = video[1] %}
-        <a href="{{ url_for('view_video', video_id=video.get('id')) }}"><p>{{ video.get('title') }} | Search Relevancy: {{ video.get('weight') }}</p></a>
+        <div class="col s12 m6 l4">
+            <ul class="collapsible" data-collapsible="expandable">
+                <li>
+                    <div class="collapsible-header active"><i class="material-icons">filter_drama</i>{{ video.get('title') }}</div>
+                    <div class="collapsible-body"><p><a class="waves-effect waves-light btn-large" href="{{ url_for('view_video', video_id=video.get('id')) }}">Watch</a></p></div>
+                </li>
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">place</i>Description</div>
+                    <div class="collapsible-body"><p>{{ video.get('description') }}</p></div>
+                </li>
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">whatshot</i>Details</div>
+                    <div class="collapsible-body">
+                        <p>Search Relevancy: {{ video.get('weight') }}</p>
+                        <p>Likes: {{ video.get('likes') }} | {{ video.get('dislikes') }} :sekilsiD</p>
+                        <p>Views: {{ video.get('views') }}</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
     {% endfor %}
+    </div>
 {% endblock %}
